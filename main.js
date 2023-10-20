@@ -1,14 +1,15 @@
 import * as THREE from 'three';
 import { ARButton } from 'three/addons/webxr/ARButton.js';
 
-let camera, scene, renderer;
+let camera, scene, renderer, mesh;
 let controller;
 let arToolkitContext, arToolkitSource, markerControls;
 
 
 
 init();
-initARJS()
+initObject();
+initARJS();
 animate();
 
 function init() {
@@ -18,18 +19,21 @@ function init() {
 
     scene = new THREE.Scene();
 
-    camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.01, 20 );
-
+    camera = new THREE.PerspectiveCamera();
+    scene.add(camera);
     const light = new THREE.HemisphereLight( 0xffffff, 0xbbbbff, 3 );
     light.position.set( 0.5, 1, 0.25 );
     scene.add( light );
 
     //
 
-    renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
-    renderer.setPixelRatio( window.devicePixelRatio );
-    renderer.setSize( window.innerWidth, window.innerHeight );
-    renderer.xr.enabled = true;
+    renderer = new THREE.WebGLRenderer( {
+        antialias: true, 
+        alpha: true,
+    } );
+    //renderer.setPixelRatio( window.devicePixelRatio );
+    //renderer.setSize( window.innerWidth, window.innerHeight );
+    //renderer.xr.enabled = true;
     container.appendChild( renderer.domElement );
 
     //
@@ -37,25 +41,18 @@ function init() {
     // document.body.appendChild( ARButton.createButton( renderer ) );
     
     //// Set controller
-    controller = renderer.xr.getController( 0 );
-    scene.add( controller );
+    // controller = renderer.xr.getController( 0 );
+    // scene.add( controller );
 
-    //// Set object
-    const geometry = new THREE.CylinderGeometry( 0, 0.05, 0.2, 32 ).rotateX( Math.PI / 2 );
-    const material = new THREE.MeshPhongMaterial( { color: 0xffffff * Math.random() } );
-    const mesh = new THREE.Mesh( geometry, material );
-    mesh.position.set( 0, 0, - 0.3 ).applyMatrix4( controller.matrixWorld );
-    mesh.quaternion.setFromRotationMatrix( controller.matrixWorld );
-    scene.add( mesh );
 
     window.addEventListener( 'resize', onWindowResize );
 
-    window.addEventListener('arjs-nft-init-data', function(nft) {
-        console.log(nft);
-        var msg = nft.detail;
-        mesh.position.y = (msg.height / msg.dpi * 2.54 * 10)/2.0; //y axis?
-        mesh.position.x = (msg.width / msg.dpi * 2.54 * 10)/2.0; //x axis?
-      })
+    // window.addEventListener('arjs-nft-init-data', function(nft) {
+    //     console.log(nft);
+    //     var msg = nft.detail;
+    //     mesh.position.y = (msg.height / msg.dpi * 2.54 * 10)/2.0; //y axis?
+    //     mesh.position.x = (msg.width / msg.dpi * 2.54 * 10)/2.0; //x axis?
+    //   })
 
 }
 
@@ -71,40 +68,25 @@ function onWindowResize() {
 //
 
 function animate() {
-
+    
     renderer.setAnimationLoop( render );
 
 }
 
 function render() {
 
+    arToolkitContext.update(arToolkitSource.domElement);
+    scene.visible = camera.visible;
+    console.log("Camera:", camera.position);
+    console.log("Mesh:", mesh.position);
     renderer.render( scene, camera );
 
 }
 
 function initARJS() {
-
-    //// arToolContext ////
-    arToolkitContext = new THREEx.ArToolkitContext({
-        detectionMode: 'mono',
-        canvasWidth: 480,
-        canvasHeight: 640,
-    }, {
-        sourceWidth: 480,
-        sourceHeight: 640,
-    })
-
-    // initialize it
-    arToolkitContext.init(function onCompleted(){
-        // copy projection matrix to camera
-        camera.projectionMatrix.copy( arToolkitContext.getProjectionMatrix() );
-    })
-
     //// arToolkitSource ////
     arToolkitSource = new THREEx.ArToolkitSource({
         sourceType : 'webcam',
-        sourceWidth: 480,
-        sourceHeight: 640,
     })
 
     arToolkitSource.init(function onReady(){
@@ -113,6 +95,20 @@ function initARJS() {
             onResize()
         }, 1000);
     })
+
+    //// arToolContext ////
+    arToolkitContext = new THREEx.ArToolkitContext({
+        cameraParametersUrl: 'camera_para.dat',
+        detectionMode: 'color_and_matrix'
+    })
+
+    // initialize it
+    arToolkitContext.init(function onCompleted(){
+        // copy projection matrix to camera
+        camera.projectionMatrix.copy( arToolkitContext.getProjectionMatrix() );
+    })
+
+    
 
     // handle resize
     window.addEventListener('resize', function(){
@@ -134,15 +130,25 @@ function initARJS() {
 
 
     //// arToolControl ////
+    var dummy = new THREE.PerspectiveCamera();
     markerControls = new THREEx.ArMarkerControls(arToolkitContext, camera, {
-        type : 'nft',
-        //patternUrl : 'resources/patt.hiro',
-        descriptorsUrl : './resources/images/klee/klee',
+        type : 'pattern',
+        patternUrl : './image/pattern-star.patt',
+        //descriptorsUrl : './resources/images/klee/klee',
         changeMatrixMode: 'cameraTransformMatrix'
     })
 
-    // scene.visible = false
+    scene.visible = true;
+}
 
-    var root = new THREE.Object3D();
-    scene.add(root);
+function initObject() {
+    //// Set object
+    const geometry = new THREE.BoxGeometry( 1,1,1);
+    const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+    mesh = new THREE.Mesh( geometry, material );
+    mesh.position.set(0, 0, -5);
+    mesh.position.y = geometry.parameters.height / 2 ;
+    mesh.visible = true;
+    //scene.add( mesh );
+    camera.add(mesh);
 }
