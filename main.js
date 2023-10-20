@@ -146,7 +146,7 @@ function initObject() {
     const geometry = new THREE.BoxGeometry( 1,1,1);
     const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
     mesh = new THREE.Mesh( geometry, material );
-    mesh.position.set(0, 0, -5);
+    mesh.position.set(0, 0, 0);
     mesh.position.y = geometry.parameters.height / 2 ;
     mesh.visible = true;
     //scene.add( mesh );
