@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { ARButton } from 'three/addons/webxr/ARButton.js';
 
-let camera, scene, renderer, mesh, mesh2;
+let camera, scene, renderer, mesh, mesh2, mesh3, mesh4, mesh5, mesh6;
 let controller;
 let arToolkitContext, arToolkitSource, markerControls;
 
@@ -88,6 +88,8 @@ function initARJS() {
     //// arToolkitSource ////
     arToolkitSource = new THREEx.ArToolkitSource({
         sourceType : 'webcam',
+        sourceWidth: 1270,
+        sourceHeight: 720,
     })
 
     arToolkitSource.init(function onReady(){
@@ -131,13 +133,31 @@ function initARJS() {
 
 
     //// arToolControl ////
-    var dummy = new THREE.PerspectiveCamera();
+    markerControls = new THREEx.ArMarkerControls(arToolkitContext, camera, {
+        type : 'unknown',
+        patternUrl : './image/pattern-cm1.patt',
+        // type : 'nft',
+        // descriptorsUrl : './resources/images/klee/klee',
+        changeMatrixMode: 'cameraTransformMatrix',
+        minConfidence: 0.8,
+    })
+
     markerControls = new THREEx.ArMarkerControls(arToolkitContext, camera, {
         type : 'unknown',
         patternUrl : './image/pattern-star.patt',
         // type : 'nft',
         // descriptorsUrl : './resources/images/klee/klee',
-        changeMatrixMode: 'cameraTransformMatrix'
+        changeMatrixMode: 'cameraTransformMatrix',
+        minConfidence: 0.8,
+    })
+
+    markerControls = new THREEx.ArMarkerControls(arToolkitContext, camera, {
+        type : 'unknown',
+        patternUrl : './image/pattern-cm2.patt',
+        // type : 'nft',
+        // descriptorsUrl : './resources/images/klee/klee',
+        changeMatrixMode: 'cameraTransformMatrix',
+        minConfidence: 0.8,
     })
 
     console.log('Pattern URL:', markerControls.parameters.patternUrl);
@@ -167,15 +187,13 @@ function initInteractiveControl() {
             raycaster.setFromCamera(touch, camera);
     
             var intersects = raycaster.intersectObjects(scene.children);
-            if (intersects.length > 0) {
-                if (intersects[0].interactive = true){
-                    // Use a random number for now
-                    const r = Math.random();
-                    const g = Math.random();
-                    const b = Math.random();
 
-                    const new_col = new THREE.Color(r, g, b);
-                    intersects[0].object.material.color.set(new_col);
+            console.log(intersects);
+
+            if (intersects.length > 0) {
+                if (intersects[0].object.interactive == true && intersects[0].object.visible == true){
+                    window.location.href = intersects[0].object.url; // Replace with your target URL
+                    
 
                 }
             }
@@ -187,7 +205,7 @@ function initInteractiveControl() {
 
 function initObject() {
     //// Set object
-    const geometry = new THREE.BoxGeometry( 0.5,0.5,0.5);
+    const geometry = new THREE.BoxGeometry( 0.3,0.3,0.3);
     const material = new THREE.MeshPhongMaterial({
         color: 0x00ff00,
         transparent: true,
@@ -197,7 +215,8 @@ function initObject() {
     });
     mesh = new THREE.Mesh( geometry, material );
     mesh.interactive = true;
-    mesh.position.set(0, 1, 0);
+    mesh.url = 'video_page.html?videoUrl=' + encodeURIComponent('https://player.vimeo.com/video/888328880?h=06de0d99e6')
+    mesh.position.set(0, -0.5, 0);
 
     const material2 = new THREE.MeshPhongMaterial({
         color: 0xff0000,
@@ -207,13 +226,66 @@ function initObject() {
         specular: 0x111111, // Color of specular highlights
     });
     mesh2 = new THREE.Mesh( geometry, material2 );
+    mesh2.url = 'video_page.html?videoUrl=' + encodeURIComponent('https://player.vimeo.com/video/888328899?h=1a18cdd048');
     mesh2.interactive = true;
-    mesh2.position.set(0,-1,0);
+    mesh2.position.set(0,-0.5,0.5);
+
+    const material3 = new THREE.MeshPhongMaterial({
+        color: 0x0000ff,
+        transparent: true,
+        opacity: 0.5,
+        shininess: 30, // Adjust shininess
+        specular: 0x111111, // Color of specular highlights
+    });
+    mesh3 = new THREE.Mesh( geometry, material3 );
+    mesh3.url = 'video_page.html?videoUrl=' + encodeURIComponent('https://player.vimeo.com/video/888328787?h=3733b78225');
+    mesh3.interactive = true;
+    mesh3.position.set(0.0,0,0);
+
+    const material4 = new THREE.MeshPhongMaterial({
+        color: 0xffff00,
+        transparent: true,
+        opacity: 0.5,
+        shininess: 30, // Adjust shininess
+        specular: 0x111111, // Color of specular highlights
+    });
+    mesh4 = new THREE.Mesh( geometry, material4 );
+    mesh4.url = 'video_page.html?videoUrl=' + encodeURIComponent('https://player.vimeo.com/video/888328829?h=f97ae1becb');
+    mesh4.interactive = true;
+    mesh4.position.set(0.0,0,0.5);
+
+    const material5 = new THREE.MeshPhongMaterial({
+        color: 0x00ffff,
+        transparent: true,
+        opacity: 0.5,
+        shininess: 30, // Adjust shininess
+        specular: 0x111111, // Color of specular highlights
+    });
+    mesh5 = new THREE.Mesh( geometry, material5 );
+    mesh5.url = 'video_page.html?videoUrl=' + encodeURIComponent('https://player.vimeo.com/video/888328847?h=4286ee4002');
+    mesh5.interactive = true;
+    mesh5.position.set(0.0,0.5,0);
+
+    const material6 = new THREE.MeshPhongMaterial({
+        color: 0xff00ff,
+        transparent: true,
+        opacity: 0.5,
+        shininess: 30, // Adjust shininess
+        specular: 0x111111, // Color of specular highlights
+    });
+    mesh6 = new THREE.Mesh( geometry, material6 );
+    mesh6.url = 'video_page.html?videoUrl=' + encodeURIComponent('https://player.vimeo.com/video/888328863?h=35d8d875d3');
+    mesh6.interactive = true;
+    mesh6.position.set(0.0,0.5,0.5);
 
     
     // mesh.position.y = geometry.parameters.height / 2 ;
     // mesh.visible = true;
-    scene.add( mesh );
+    scene.add(mesh);
     scene.add(mesh2);
+    scene.add(mesh3);
+    scene.add(mesh4);
+    scene.add(mesh5);
+    scene.add(mesh6);
     // camera.add(mesh);
 }
