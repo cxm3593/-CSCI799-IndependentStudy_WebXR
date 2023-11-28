@@ -1,50 +1,63 @@
 <!DOCTYPE html>
-<html lang="en">
 
+<html>
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
-    <title>Video Page</title>
     <style>
-        body {
-            margin: 0;
-        }
-
-        .video-container {
-            position: relative;
-            width: 100%;
-            padding-top: 56.25%;
-            /* 16:9 Aspect Ratio */
-        }
-
-        .video-container iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: none;
+        .button {
+          background-color: #633082;
+          border: none;
+          color: white;
+          padding: 15px 32px;
+          text-align: center;
+          text-decoration: none;
+          display: inline-block;
+          font-family: Arial, sans-serif;
+          font-size: 16px;
+          margin: 4px 2px;
+          cursor: pointer;
+          z-index: 10;
         }
     </style>
-</head>
-
-<body>
-    <div style="padding:56.25% 0 0 0;position:relative;">
-        <iframe
-            id="videoPlayer" 
-            frameborder="0" allow="autoplay; fullscreen; picture-in-picture"
-            style="position:absolute;top:0;left:0;width:100%;height:100%;" title="02-Astrodance-AR"></iframe></div>
     <script src="https://player.vimeo.com/api/player.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const urlParams = new URLSearchParams(window.location.search);
-            const videoUrl = urlParams.get('videoUrl');
-            if (videoUrl) {
-                const decodedVideoUrl = decodeURIComponent(videoUrl) + '&autoplay=1'; 
-                document.getElementById('videoPlayer').src = decodedVideoUrl;
-            }
-        });
-    </script>
+</head>
+<body id="myvideo" style="background-color: Black;">
+    <div style="padding: 56.25% 0 0 0; position: relative;">
+        <iframe id="videoPlayer" src="https://player.vimeo.com/video/888328880?playsinline=0&h=06de0d99e6&badge=0&autopause=0&quality_selector=1&player_id=0&app_id=58479" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" title="01-Astrodance-AR"></iframe>
+    </div>
+    <script src="https://player.vimeo.com/api/player.js"></script>
+    <div style="position: absolute; left: 8%; top: 4%; background-color: yellow;">
+        <button onclick="history.back()" class="button">Go Back</button>
+        <!-- <a href="http://www.cs.rit.edu/~jmg/Astrodance/video1.html" class="button">Go Back</a> -->
+    </div>
+    <!-- <script>openFullscreen();</script> --> <!-- Commented out as it likely won't work as intended -->
 </body>
+<script>
+  /* Get the element you want displayed in fullscreen mode (a video in this example): */
+  var elem = document.getElementById("myvideo");
+  
+  /* When the openFullscreen() function is executed, open the video in fullscreen.
+  Note that we must include prefixes for different browsers, as they don't support the requestFullscreen method yet */
+  function openFullscreen() {
+    if (elem.requestFullscreen) {
+      elem.requestFullscreen();
+    } else if (elem.webkitRequestFullscreen) { /* Safari */
+      elem.webkitRequestFullscreen();
+    } else if (elem.msRequestFullscreen) { /* IE11 */
+      elem.msRequestFullscreen();
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+        const urlParams = new URLSearchParams(window.location.search);
+        const videoUrl = urlParams.get('videoUrl');
+        if (videoUrl) {
+            const decodedVideoUrl = decodeURIComponent(videoUrl) + '&autoplay=1'; 
+            document.getElementById('videoPlayer').src = decodedVideoUrl;
+        }
+    });
+</script>
+
+
 
 </html>
+
