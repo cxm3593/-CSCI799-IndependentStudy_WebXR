@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+    <title>Video Page</title>
+    <style>
+        body {
+            margin: 0;
+        }
+
+        .video-container {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%;
+            /* 16:9 Aspect Ratio */
+        }
+
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div style="padding:56.25% 0 0 0;position:relative;">
+        <iframe
+            id="videoPlayer" 
+            frameborder="0" allow="autoplay; fullscreen; picture-in-picture"
+            style="position:absolute;top:0;left:0;width:100%;height:100%;" title="02-Astrodance-AR"></iframe></div>
+    <script src="https://player.vimeo.com/api/player.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const urlParams = new URLSearchParams(window.location.search);
+            const videoUrl = urlParams.get('videoUrl');
+            if (videoUrl) {
+                const decodedVideoUrl = decodeURIComponent(videoUrl) + '&autoplay=1'; 
+                document.getElementById('videoPlayer').src = decodedVideoUrl;
+            }
+        });
+    </script>
+</body>
+
+</html>
