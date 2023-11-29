@@ -9,14 +9,15 @@ let arToolkitContext, arToolkitSource, markerControls;
 let pointCloud;
 let asteroids = [];
 let clock;
+let light;
 
 let group;
 
 init();
-// initObject();
+initObject();
 initARJS();
-// initInteractiveControl();
-// SetOverlays();
+initInteractiveControl();
+SetOverlays();
 // PostProcessing();
 sceneSetUp();
 setButtons();
@@ -24,6 +25,8 @@ animate();
 
 
 function init() {
+
+    
 
     clock = new THREE.Clock();
 
@@ -34,9 +37,7 @@ function init() {
 
     camera = new THREE.PerspectiveCamera();
     scene.add(camera);
-    const light = new THREE.HemisphereLight( 0xffffff, 0xbbbbff, 3 );
-    light.position.set( 0.5, 1, 1 );
-    scene.add( light );
+    
 
     group = new THREE.Group();
     scene.add(group);
@@ -51,6 +52,7 @@ function init() {
     renderer.setSize( window.innerWidth, window.innerHeight );
     // renderer.xr.enabled = true;
     container.appendChild( renderer.domElement );
+    renderer.domElement.requestFullscreen();
 
     //
 
@@ -92,16 +94,21 @@ function render() {
     scene.visible = camera.visible;
     pointCloud.rotation.x -= 0.1 * delta_time;
     pointCloud.rotation.z -= 0.1 * delta_time;
-    // updateTextOverlay(mesh, "textOverlay1");
-    // updateTextOverlay(mesh2, "textOverlay2");
-    // updateTextOverlay(mesh3, "textOverlay3");
-    // updateTextOverlay(mesh4, "textOverlay4");
-    // updateTextOverlay(mesh5, "textOverlay5");
-    // updateTextOverlay(mesh6, "textOverlay6");
+
+    if(textMesh){
+        light.target.position.set(textMesh.position);
+    }
+    
+    updateTextOverlay(mesh, "textOverlay1");
+    updateTextOverlay(mesh2, "textOverlay2");
+    updateTextOverlay(mesh3, "textOverlay3");
+    updateTextOverlay(mesh4, "textOverlay4");
+    updateTextOverlay(mesh5, "textOverlay5");
+    updateTextOverlay(mesh6, "textOverlay6");
     // console.log("Camera:", camera.position, camera.visible);
     // console.log("Mesh:", mesh.position, mesh.visible);
     group.quaternion.copy(camera.quaternion);
-    updateAsteroids(delta_time, 0.1);
+    updateAsteroids(delta_time, 0.5);
     renderer.render( scene, camera );
 
 }
@@ -186,11 +193,19 @@ function initARJS() {
     console.log(markerControls);
     window.addEventListener('markerFound', function(ev){
         // console.log('Marker found!', ev);
+        
+        var distance = camera.position.distanceTo(new THREE.Vector3(0,0,0));
+        // console.log("Camera pos:", distance);
+        var scale_factor = distance * 0.5;
+        group.scale.set(scale_factor, scale_factor, scale_factor);
         document.getElementById('overlay').style.display = 'block';
+        light.intensity = 10 * distance;
+        
     });
 
     window.addEventListener('markerLost', function(ev){
-        document.getElementById('overlay').style.display = 'none';
+        // console.log(camera.visible);
+        camera.visible = true;
     });
 
     scene.visible = true;
@@ -320,12 +335,19 @@ function initObject() {
     
     // mesh.position.y = geometry.parameters.height / 2 ;
     // mesh.visible = true;
-    scene.add(mesh);
-    scene.add(mesh2);
-    scene.add(mesh3);
-    scene.add(mesh4);
-    scene.add(mesh5);
-    scene.add(mesh6);
+    var group2 = new THREE.Group();
+    group2.rotateY(-90 * Math.PI / 180);
+    group2.scale.set(0.7, 0.7, 0.7);
+    group2.position.set(0.25, -0.5, 0);
+    
+    group2.add(mesh);
+    group2.add(mesh2);
+    group2.add(mesh3);
+    group2.add(mesh4);
+    group2.add(mesh5);
+    group2.add(mesh6);
+
+    group.add(group2);
     // camera.add(mesh);
 
     // Add thumbnails
@@ -389,9 +411,10 @@ function initObject() {
 function sceneSetUp(){
     //// Env ////
     scene.fog = new THREE.Fog( 0x000000, 250, 1400 );
-    const light = new THREE.PointLight(0xffffff, 10, 100);
-    light.position.set(1, 1, 1);
+    light = new THREE.DirectionalLight( 0xffffff, 1);
+    light.position.set(0, 3, 3);
     group.add( light );
+    
 
     //// Star cloud ////
     var ww = window.innerWidth,
@@ -443,10 +466,10 @@ function sceneSetUp(){
 
         // geometry.attributes.position.needsUpdate = true;
 
-        const color = new THREE.Color(Math.random(), Math.random, Math.random());
+        const color = new THREE.Color(Math.random() * 0.5, Math.random() * 0.6, Math.random() * 0.5);
+        //const color = new THREE.Color(1.0, 0.0, 0.0);
         const asteroid_mat = new THREE.MeshStandardMaterial({
             color: color,
-            shading: THREE.FlatShading,
             roughness: 0.8,
             metalness: 1
         });
