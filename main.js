@@ -1,20 +1,25 @@
 import * as THREE from 'three';
 import { ARButton } from 'three/addons/webxr/ARButton.js';
+import { FontLoader } from 'three/addons/loaders/FontLoader.js';
+import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
 
-let camera, scene, renderer, mesh, mesh2, mesh3, mesh4, mesh5, mesh6;
+let camera, scene, renderer, mesh, mesh2, mesh3, mesh4, mesh5, mesh6, textMesh;
 let controller;
 let arToolkitContext, arToolkitSource, markerControls;
 let pointCloud;
+let asteroids = [];
 let clock;
 
-
+let group;
 
 init();
-initObject();
+// initObject();
 initARJS();
-initInteractiveControl();
-SetOverlays();
+// initInteractiveControl();
+// SetOverlays();
 // PostProcessing();
+sceneSetUp();
+setButtons();
 animate();
 
 
@@ -30,8 +35,11 @@ function init() {
     camera = new THREE.PerspectiveCamera();
     scene.add(camera);
     const light = new THREE.HemisphereLight( 0xffffff, 0xbbbbff, 3 );
-    light.position.set( 0.5, 1, 0.25 );
+    light.position.set( 0.5, 1, 1 );
     scene.add( light );
+
+    group = new THREE.Group();
+    scene.add(group);
 
     //
 
@@ -84,14 +92,16 @@ function render() {
     scene.visible = camera.visible;
     pointCloud.rotation.x -= 0.1 * delta_time;
     pointCloud.rotation.z -= 0.1 * delta_time;
-    updateTextOverlay(mesh, "textOverlay1");
-    updateTextOverlay(mesh2, "textOverlay2");
-    updateTextOverlay(mesh3, "textOverlay3");
-    updateTextOverlay(mesh4, "textOverlay4");
-    updateTextOverlay(mesh5, "textOverlay5");
-    updateTextOverlay(mesh6, "textOverlay6");
+    // updateTextOverlay(mesh, "textOverlay1");
+    // updateTextOverlay(mesh2, "textOverlay2");
+    // updateTextOverlay(mesh3, "textOverlay3");
+    // updateTextOverlay(mesh4, "textOverlay4");
+    // updateTextOverlay(mesh5, "textOverlay5");
+    // updateTextOverlay(mesh6, "textOverlay6");
     // console.log("Camera:", camera.position, camera.visible);
     // console.log("Mesh:", mesh.position, mesh.visible);
+    group.quaternion.copy(camera.quaternion);
+    updateAsteroids(delta_time, 0.1);
     renderer.render( scene, camera );
 
 }
@@ -234,7 +244,7 @@ function initObject() {
     });
     mesh = new THREE.Mesh( geometry, material );
     mesh.interactive = true;
-    mesh.url = 'video_page.html?videoUrl=' + encodeURIComponent('https://player.vimeo.com/video/888328880?h=06de0d99e6')
+    mesh.url = 'video_page.html?videoUrl=' + encodeURIComponent('https://player.vimeo.com/video/888328880?h=06de0d99e6');
     mesh.position.set(0, -0.5, 0);
 
     const material2 = new THREE.MeshPhongMaterial({
@@ -371,15 +381,25 @@ function initObject() {
     loadThumbnailAndCreatePlane("888328847", mesh5, 5);
     loadThumbnailAndCreatePlane("888328863", mesh6, 6);
 
-    // Add a visual point cloud
+    
+
+
+}
+
+function sceneSetUp(){
+    //// Env ////
+    scene.fog = new THREE.Fog( 0x000000, 250, 1400 );
+    const light = new THREE.PointLight(0xffffff, 10, 100);
+    light.position.set(1, 1, 1);
+    group.add( light );
+
+    //// Star cloud ////
     var ww = window.innerWidth,
     wh = window.innerHeight;
     var points = [];
     var cloud_material = new THREE.PointsMaterial({
         color: 0xffffff,
         size:1,
-        blending: THREE.AdditiveBlending,
-        depthTest: false,
     });
 
     var cloud_geometry = new THREE.BufferGeometry();
@@ -388,7 +408,7 @@ function initObject() {
     for (var i = 0; i < 2000; i++) {
         x = (Math.random() * ww * 2) - ww;
         y = (Math.random() * wh * 2) - wh;
-        z = (Math.random() * 3000) - 1500;
+        z = (Math.random() * 5000) - 2500;
         
         // Add the point as a flat array
         points.push(x, y, z);
@@ -398,9 +418,90 @@ function initObject() {
     cloud_geometry.setAttribute('position', new THREE.Float32BufferAttribute(points, 3));
 
     pointCloud = new THREE.Points(cloud_geometry, cloud_material);
-    scene.add(pointCloud);
+    group.add(pointCloud);
 
+    //// Asteroid ////
+    
+    
+    for (let i=0; i<7;i++){
+        let geometry = new THREE.DodecahedronGeometry(0.15, 1);
+        //let geometry = new THREE.Sphere(0.15);
+        // const positions = geometry.attributes.position;
+        // const vertex = new THREE.Vector3();
+        // const displacement = 0.02; // Set a small displacement value
 
+        // for (let i = 0; i < positions.count; i++) {
+        //     vertex.fromBufferAttribute(positions, i);
+
+        //     // Apply a small random displacement
+        //     vertex.x += (Math.random() - 0.5) * displacement;
+        //     vertex.y += (Math.random() - 0.5) * displacement;
+        //     vertex.z += (Math.random() - 0.5) * displacement;
+
+        //     positions.setXYZ(i, vertex.x, vertex.y, vertex.z);
+        // }
+
+        // geometry.attributes.position.needsUpdate = true;
+
+        const color = new THREE.Color(Math.random(), Math.random, Math.random());
+        const asteroid_mat = new THREE.MeshStandardMaterial({
+            color: color,
+            shading: THREE.FlatShading,
+            roughness: 0.8,
+            metalness: 1
+        });
+        const asteroid = new THREE.Mesh(geometry, asteroid_mat);
+        var x = (Math.random() - 0.5) * 2;
+        var y = (Math.random() - 0.5) * 2;
+        var z = (Math.random() ) * -5;
+        asteroid.position.copy(new THREE.Vector3(x, y,z));
+        group.add(asteroid);
+        asteroids.push(asteroid);
+    }
+
+    //// 3D font ////
+    const loader = new FontLoader();
+    
+    loader.load('resources/fonts/helvetiker_bold.typeface.json', function (font) {
+        const textGeometry = new TextGeometry('Astrodance', {
+            font: font,
+            size: 0.1,
+            height: 0.2
+        });
+
+        const text_mat = new THREE.MeshStandardMaterial({ 
+            color: 0xffffff, // Adjust color
+            metalness: 0.6, // Value between 0 and 1
+            roughness: 0.2  // Lower for smoother surfaces
+        });
+        textMesh = new THREE.Mesh(textGeometry, text_mat);
+        textMesh.position.x = -0.25;
+        group.add(textMesh);
+    });
+}
+
+function updateAsteroids(delta_time, scale){
+    asteroids.forEach(element => {
+        element.position.x += (Math.random() - 0.5) * delta_time * scale;
+        element.position.y += (Math.random() - 0.5) * delta_time * scale;
+        element.position.z += (Math.random() - 0.5) * delta_time * scale;
+    });
+}
+
+function setButtons(){
+    // Select all buttons with the data-url attribute
+    const buttons = document.querySelectorAll('button[data-url]');
+
+    // Add a click event listener to each button
+    buttons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Retrieve the URL from the data-url attribute
+            const url = 'video_page.html?videoUrl=' + encodeURIComponent(this.getAttribute('data-url'));
+
+            // Redirect to the URL
+            window.location.href = url;
+        });
+    });
 }
 
 //// Add text overlay
