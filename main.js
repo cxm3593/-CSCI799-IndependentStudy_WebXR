@@ -257,7 +257,8 @@ function initObject() {
     });
     mesh = new THREE.Mesh( geometry, material );
     mesh.interactive = true;
-    mesh.url = 'video_page.html?videoUrl=' + encodeURIComponent('https://player.vimeo.com/video/888328880?h=06de0d99e6');
+    // mesh.url = 'video_page.html?videoUrl=' + encodeURIComponent('https://player.vimeo.com/video/888328880?h=06de0d99e6');
+    mesh.url = "https://www.cs.rit.edu/~jmg/Astrodance/video1.html";
     mesh.position.set(0, -0.5, 0);
 
     const material2 = new THREE.MeshPhongMaterial({
@@ -270,7 +271,7 @@ function initObject() {
         depthTest : false,
     });
     mesh2 = new THREE.Mesh( geometry, material2 );
-    mesh2.url = 'video_page.html?videoUrl=' + encodeURIComponent('https://player.vimeo.com/video/888328899?h=1a18cdd048');
+    mesh2.url = "https://www.cs.rit.edu/~jmg/Astrodance/video2.html";
     mesh2.interactive = true;
     mesh2.position.set(0,-0.5,0.5);
 
@@ -284,7 +285,7 @@ function initObject() {
         depthTest : false,
     });
     mesh3 = new THREE.Mesh( geometry, material3 );
-    mesh3.url = 'video_page.html?videoUrl=' + encodeURIComponent('https://player.vimeo.com/video/888328787?h=3733b78225');
+    mesh3.url = "https://www.cs.rit.edu/~jmg/Astrodance/video3.html";
     mesh3.interactive = true;
     mesh3.position.set(0.0,0,0);
 
@@ -298,7 +299,7 @@ function initObject() {
         depthTest : false,
     });
     mesh4 = new THREE.Mesh( geometry, material4 );
-    mesh4.url = 'video_page.html?videoUrl=' + encodeURIComponent('https://player.vimeo.com/video/888328829?h=f97ae1becb');
+    mesh4.url = "https://www.cs.rit.edu/~jmg/Astrodance/video4.html";
     mesh4.interactive = true;
     mesh4.position.set(0.0,0,0.5);
 
@@ -312,7 +313,7 @@ function initObject() {
         depthTest : false,
     });
     mesh5 = new THREE.Mesh( geometry, material5 );
-    mesh5.url = 'video_page.html?videoUrl=' + encodeURIComponent('https://player.vimeo.com/video/888328847?h=4286ee4002');
+    mesh5.url = "https://www.cs.rit.edu/~jmg/Astrodance/video5.html";
     mesh5.interactive = true;
     mesh5.position.set(0.0,0.5,0);
 
@@ -326,7 +327,7 @@ function initObject() {
         depthTest : false,
     });
     mesh6 = new THREE.Mesh( geometry, material6 );
-    mesh6.url = 'video_page.html?videoUrl=' + encodeURIComponent('https://player.vimeo.com/video/888328863?h=35d8d875d3');
+    mesh6.url = "https://www.cs.rit.edu/~jmg/Astrodance/video6.html";
     mesh6.interactive = true;
     mesh6.position.set(0.0,0.5,0.5);
 
@@ -517,10 +518,10 @@ function setButtons(){
     buttons.forEach(button => {
         button.addEventListener('click', function() {
             // Retrieve the URL from the data-url attribute
-            const url = 'video_page.html?videoUrl=' + encodeURIComponent(this.getAttribute('data-url'));
+            // const url = 'video_page.html?videoUrl=' + encodeURIComponent(this.getAttribute('data-url'));
 
             // Redirect to the URL
-            window.location.href = url;
+            window.location.href = this.getAttribute('data-url');
         });
     });
 }
