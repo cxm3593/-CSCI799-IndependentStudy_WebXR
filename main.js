@@ -52,7 +52,6 @@ function init() {
     renderer.setSize( window.innerWidth, window.innerHeight );
     // renderer.xr.enabled = true;
     container.appendChild( renderer.domElement );
-    renderer.domElement.requestFullscreen();
 
     //
 
@@ -221,8 +220,8 @@ function initInteractiveControl() {
         if (event.touches.length > 0) {
             event.preventDefault();
     
-            touch.x = (event.touches[0].clientX / window.innerWidth) * 2 - 1;
-            touch.y = - (event.touches[0].clientY / window.innerHeight) * 2 + 1;
+            touch.x = ((event.touches[0].clientX) / window.innerWidth) * 2 - 1;
+            touch.y = - ((event.touches[0].clientY) / window.innerHeight) * 2 + 1;
     
             // console.log("Touch: ", touch.x, touch.y);
 
@@ -235,8 +234,7 @@ function initInteractiveControl() {
             if (intersects.length > 0) {
                 if (intersects[0].object.interactive == true && intersects[0].object.visible == true){
                     window.location.href = intersects[0].object.url; // Replace with your target URL
-                    
-
+                    intersects[0].object.material.color = new THREE.Color(0.25, 0.25, 0.25);
                 }
             }
     
